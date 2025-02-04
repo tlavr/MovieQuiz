@@ -6,7 +6,7 @@
 //
 import UIKit
 
-class AlertPresenter {
+final class AlertPresenter {
     // MARK: - Public properties
     weak var delegate: MovieQuizViewController?
     

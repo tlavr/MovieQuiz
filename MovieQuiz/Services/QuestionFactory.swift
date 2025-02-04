@@ -5,7 +5,7 @@
 //  Created by Timur Lavrukhin on 29.1.2025.
 //
 
-class QuestionFactory: QuestionFactoryProtocol {
+final class QuestionFactory: QuestionFactoryProtocol {
     // MARK: - Public Properties
     weak var delegate: QuestionFactoryDelegate?
     
