@@ -10,30 +10,16 @@ import Foundation
 final class StatisticService: StatisticServiceProtocol {
     // MARK: - Public properties
     var gamesCount: Int {
-        get {
-            storage.integer(forKey: Keys.gamesCount.rawValue)
-        }
-        set {
-            storage.set(newValue, forKey: Keys.gamesCount.rawValue)
-        }
+        get { storage.integer(forKey: Keys.gamesCount.rawValue) }
+        set { storage.set(newValue, forKey: Keys.gamesCount.rawValue) }
     }
     
     var bestGame: GameResult {
-        get {
-            if let dateValue = storage.string(forKey: Keys.bestGameDate.rawValue) {
-                GameResult(
-                    correct: storage.integer(forKey: Keys.bestGameCorrect.rawValue),
-                    total: storage.integer(forKey: Keys.bestGameTotal.rawValue),
-                    date: dateValue
-                )
-            } else {
-                GameResult(
-                    correct: storage.integer(forKey: Keys.bestGameCorrect.rawValue),
-                    total: storage.integer(forKey: Keys.bestGameTotal.rawValue),
-                    date: Date().dateTimeString
-                )
-            }
-        }
+        get { GameResult(
+            correct: storage.integer(forKey: Keys.bestGameCorrect.rawValue),
+            total: storage.integer(forKey: Keys.bestGameTotal.rawValue),
+            date: storage.string(forKey: Keys.bestGameDate.rawValue) ?? Date().dateTimeString
+        ) }
         set {
             storage.set(newValue.correct, forKey: Keys.bestGameCorrect.rawValue)
             storage.set(newValue.total, forKey: Keys.bestGameTotal.rawValue)
@@ -54,12 +40,8 @@ final class StatisticService: StatisticServiceProtocol {
     private let storage: UserDefaults = .standard
     private var questionsAmount: Int = 10
     private var correctAnswers: Int {
-        get {
-            storage.integer(forKey: Keys.correctAnswers.rawValue)
-        }
-        set {
-            storage.set(newValue, forKey: Keys.correctAnswers.rawValue)
-        }
+        get { storage.integer(forKey: Keys.correctAnswers.rawValue) }
+        set { storage.set(newValue, forKey: Keys.correctAnswers.rawValue) }
     }
     private enum Keys: String {
         case correctAnswers

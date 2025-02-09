@@ -11,8 +11,8 @@ final class MovieQuizViewController: UIViewController {
     
     // MARK: - Private Properties
     private let questionsAmount: Int = 10
-    private var correctAnswers: Int = 0
-    private var currentQuestionIndex: Int = 0
+    private var correctAnswers: Int = .zero
+    private var currentQuestionIndex: Int = .zero
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter?
     private var questionFactory: QuestionFactoryProtocol?
@@ -37,9 +37,7 @@ final class MovieQuizViewController: UIViewController {
     
     // MARK: - IB Actions
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
+        guard let currentQuestion else { return }
         changeButtonsState(isEnabled: false)
         // Just pass correctAnswer because correct result is equal to the user's answer
         showAnswerResult(isCorrect: currentQuestion.correctAnswer)
@@ -101,7 +99,7 @@ final class MovieQuizViewController: UIViewController {
             message: result.text,
             buttonText: result.buttonText
         ) { [weak self] in
-            guard let self = self else {return}
+            guard let self else { return }
             // Reset the game
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
@@ -122,10 +120,12 @@ final class MovieQuizViewController: UIViewController {
                 date: Date().dateTimeString
             )
             statisticService.store(roundResult)
-            var roundResultText = "Ваш результат: \(correctAnswers)/\(questionsAmount)\n"
-            roundResultText.append("Количество сыгранных квизов: \(statisticService.gamesCount)\n")
-            roundResultText.append("Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date))\n")
-            roundResultText.append("Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%")
+            var roundResultText = """
+            Ваш результат: \(correctAnswers)/\(questionsAmount)
+            Количество сыгранных квизов: \(statisticService.gamesCount)
+            Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date))
+            Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+            """
             let quizResult = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: roundResultText,
