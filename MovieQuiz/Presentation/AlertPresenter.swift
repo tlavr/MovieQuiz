@@ -11,7 +11,7 @@ final class AlertPresenter {
     weak var delegate: MovieQuizViewController?
     
     // MARK: - Public Methods
-    func showQuizResult(with alertInfo: AlertModel) {
+    func showAlert(with alertInfo: AlertModel) {
         let alert = UIAlertController(
             title: alertInfo.title,
             message: alertInfo.message,

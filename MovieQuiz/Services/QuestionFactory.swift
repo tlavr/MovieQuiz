@@ -4,63 +4,92 @@
 //
 //  Created by Timur Lavrukhin on 29.1.2025.
 //
+import Foundation
 
 final class QuestionFactory: QuestionFactoryProtocol {
-    // MARK: - Public Properties
-    weak var delegate: QuestionFactoryDelegate?
-    
     // MARK: - Private Properties
-    private let questions: [QuizQuestion] = [
-        QuizQuestion(
-            image: "The Godfather",
-            text: "Рейтинг этого фильма больше чем 9?",
-            correctAnswer: true), // real rating = 9.2
-        QuizQuestion(
-            image: "The Dark Knight",
-            text: "Рейтинг этого фильма больше чем 8?",
-            correctAnswer: true), // real rating = 9
-        QuizQuestion(
-            image: "Kill Bill",
-            text: "Рейтинг этого фильма больше чем 8?",
-            correctAnswer: true), // real rating = 8.1
-        QuizQuestion(
-            image: "The Avengers",
-            text: "Рейтинг этого фильма больше чем 6?",
-            correctAnswer: true), // real rating = 8
-        QuizQuestion(
-            image: "Deadpool",
-            text: "Рейтинг этого фильма больше чем 7?",
-            correctAnswer: true), // real rating = 8
-        QuizQuestion(
-            image: "The Green Knight",
-            text: "Рейтинг этого фильма больше чем 5?",
-            correctAnswer: true), // real rating = 6.6
-        QuizQuestion(
-            image: "Old",
-            text: "Рейтинг этого фильма больше чем 6?",
-            correctAnswer: false), // real rating = 5.8
-        QuizQuestion(
-            image: "The Ice Age Adventures of Buck Wild",
-            text: "Рейтинг этого фильма больше чем 5?",
-            correctAnswer: false), // real rating = 4.3
-        QuizQuestion(
-            image: "Tesla",
-            text: "Рейтинг этого фильма больше чем 7?",
-            correctAnswer: false), // real rating = 5.1
-        QuizQuestion(
-            image: "Vivarium",
-            text: "Рейтинг этого фильма больше чем 6?",
-            correctAnswer: false) // real rating = 5.8
-    ]
+    private weak var delegate: QuestionFactoryDelegate?
+    private let moviesLoader: MoviesLoading
+    private var movies: [MostPopularMovie] = []
+    private enum MovieError: LocalizedError {
+        case imageLoadError
+        case moviesDbError
+        var errorDescription: String? {
+            switch self {
+            case .imageLoadError:   String(localized: "Невозможно загрузить данные", comment: "ImageLoadError")
+            case .moviesDbError:   String(localized: "Невозможно загрузить данные", comment: "MoviesDbLoadError")
+            }
+        }
+    }
     
     // MARK: - Public Methods
-    func requestNextQuestion() {
-        guard let index = (0..<questions.count).randomElement() else {
-            delegate?.didReceiveNextQuestion(question: nil)
-            return
+    init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
+        self.moviesLoader = moviesLoader
+        self.delegate = delegate
+    }
+    
+    func loadData() {
+        moviesLoader.loadMovies { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let mostPopularMovies):
+                    self.movies = mostPopularMovies.items
+                    self.delegate?.didLoadDataFromServer()
+                case .failure(let error):
+                    self.delegate?.didFailToLoadData(with: error)
+                }
+            }
         }
-        
-        let question = questions[safe: index]
-        delegate?.didReceiveNextQuestion(question: question)
+    }
+    
+    func requestNextQuestion() {
+        DispatchQueue.global().async { [weak self] in
+            guard let self = self else { return }
+            
+            // Если массив пустой, значит база данных фильмов не была загружена и надо повторить попытку загрузки
+            if self.movies.count == 0 {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.loadData()
+                    self.delegate?.didFailToLoadData(with: MovieError.moviesDbError)
+                }
+            }
+            
+            let index = (0..<self.movies.count).randomElement() ?? 0
+            guard let movie = self.movies[safe: index] else { return }
+            
+            var imageData = Data()
+            do {
+                imageData = try Data(contentsOf: movie.resizedImageURL)
+            } catch {
+                // Если не удалось загрузить картинку, значит соединение с сетью потеряно и необходимо повторить попытку
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.delegate?.didFailToLoadData(with: MovieError.imageLoadError)
+                }
+            }
+            
+            let rating = Float(movie.rating) ?? 0
+            let ratingThreshold = (7..<10).randomElement() ?? 0
+            let questionSelectionThreshold = (0..<100).randomElement() ?? 0
+            var text : String
+            var correctAnswer : Bool
+            if questionSelectionThreshold > 49 {
+                text = "Рейтинг этого фильма больше чем \(ratingThreshold)?"
+                correctAnswer = rating > Float(ratingThreshold)
+            } else {
+                text = "Рейтинг этого фильма меньше чем \(ratingThreshold)?"
+                correctAnswer = rating < Float(ratingThreshold)
+            }
+            let question = QuizQuestion(image: imageData,
+                                        text: text,
+                                        correctAnswer: correctAnswer)
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.delegate?.didReceiveNextQuestion(question: question)
+            }
+        }
     }
 }
