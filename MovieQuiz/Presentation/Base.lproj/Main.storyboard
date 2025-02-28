@@ -111,6 +111,9 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="ftM-en-EFK" userLabel="activityIndicator">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
@@ -119,9 +122,12 @@
                             <constraint firstItem="HbG-0m-uof" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="At5-VZ-kdP"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="HbG-0m-uof" secondAttribute="trailing" constant="20" id="JtW-Sy-HbZ"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="HbG-0m-uof" secondAttribute="bottom" id="pEN-5o-OHo"/>
+                            <constraint firstItem="ftM-en-EFK" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="qPq-lc-azS"/>
+                            <constraint firstItem="ftM-en-EFK" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="vQv-oF-pGW"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="ftM-en-EFK" id="6bN-sI-Qge"/>
                         <outlet property="counterLabel" destination="sV9-ps-wC4" id="tYi-6B-VO9"/>
                         <outlet property="imageView" destination="Whk-Ho-mvl" id="SM7-Wd-x6i"/>
                         <outlet property="noButton" destination="bPZ-qh-xyX" id="TZo-w4-aa3"/>
