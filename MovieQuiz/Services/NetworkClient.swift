@@ -24,7 +24,7 @@ struct NetworkClient {
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             // Проверяем, пришла ли ошибка
-            if let error = error {
+            if error != nil {
                 handler(.failure(NetworkError.sessionError))
                 return
             }

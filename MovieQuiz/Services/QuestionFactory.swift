@@ -34,6 +34,9 @@ final class QuestionFactory: QuestionFactoryProtocol {
                 guard let self = self else { return }
                 switch result {
                 case .success(let mostPopularMovies):
+                    if mostPopularMovies.errorMessage.count != 0 {
+                        self.delegate?.didFailToLoadData(with: MovieError.moviesDbError)
+                    }
                     self.movies = mostPopularMovies.items
                     self.delegate?.didLoadDataFromServer()
                 case .failure(let error):
@@ -82,7 +85,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
                 text = "Рейтинг этого фильма меньше чем \(ratingThreshold)?"
                 correctAnswer = rating < Float(ratingThreshold)
             }
-            let question = QuizQuestion(image: imageData,
+            let question = QuizQuestion(imageData: imageData,
                                         text: text,
                                         correctAnswer: correctAnswer)
             

@@ -8,7 +8,7 @@ import Foundation
 
 struct QuizQuestion {
     // Film name, same as image name in the Assets
-    let image: Data
+    let imageData: Data
     // Film rating question
     let text: String
     let correctAnswer: Bool

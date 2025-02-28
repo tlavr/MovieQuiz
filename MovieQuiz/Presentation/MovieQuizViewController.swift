@@ -22,6 +22,7 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - View Lifecycles
     override func viewDidLoad() {
         super.viewDidLoad()
+        activityIndicator.hidesWhenStopped = true
         
         let alertPresenter = AlertPresenter()
         alertPresenter.delegate = self
@@ -54,7 +55,7 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Private Methods
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
+            image: UIImage(data: model.imageData) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
         return questionStep
@@ -132,6 +133,7 @@ final class MovieQuizViewController: UIViewController {
             showRoundResult(with: quizResult)
         } else {
             currentQuestionIndex += 1
+            showLoadingIndicator()
             questionFactory?.requestNextQuestion()
         }
     }
@@ -142,13 +144,11 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showLoadingIndicator() {
-        activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
-        activityIndicator.startAnimating() // включаем анимацию
+        activityIndicator.startAnimating()
     }
     
     private func hideLoadingIndicator() {
-        activityIndicator.stopAnimating() // выключаем анимацию
-        activityIndicator.isHidden = true // говорим, что индикатор загрузки скрыт
+        activityIndicator.stopAnimating()
     }
     
     private func showNetworkError(message: String) {
@@ -172,6 +172,7 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {return}
         currentQuestion = question
+        hideLoadingIndicator()
         showCurrentQuestion()
     }
     
