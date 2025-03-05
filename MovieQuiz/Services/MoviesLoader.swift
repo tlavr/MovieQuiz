@@ -9,7 +9,7 @@ import Foundation
 
 struct MoviesLoader: MoviesLoading {
     // MARK: - NetworkClient
-    private let networkClient = NetworkClient()
+    private let networkClient: NetworkRouting
     private enum JsonError: LocalizedError {
         case decoderError
         var errorDescription: String? {
@@ -29,6 +29,10 @@ struct MoviesLoader: MoviesLoading {
     }
     
     // MARK: - Public methods
+    init(networkClient: NetworkRouting = NetworkClient()) {
+          self.networkClient = networkClient
+      }
+    
     func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void) {
         networkClient.fetch(url: mostPopularMoviesUrl) { result in
             switch result {

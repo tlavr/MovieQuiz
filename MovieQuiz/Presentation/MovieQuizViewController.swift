@@ -94,6 +94,7 @@ final class MovieQuizViewController: UIViewController {
     private func showRoundResult(with result: QuizResultsViewModel) {
         guard let alertPresenter = alertPresenter else { return }
         let endRoundAlert = AlertModel(
+            identifier: "Game results",
             title: result.title,
             message: result.text,
             buttonText: result.buttonText
@@ -154,7 +155,8 @@ final class MovieQuizViewController: UIViewController {
     private func showNetworkError(message: String) {
         hideLoadingIndicator()
         guard let alertPresenter = alertPresenter else { return }
-        let networkErrorAlert = AlertModel(title: "Что-то пошло не так(",
+        let networkErrorAlert = AlertModel(identifier: "Network error",
+                                           title: "Что-то пошло не так(",
                                            message: message,
                                            buttonText: "Попробовать еще раз") { [weak self] in
             guard let self = self else { return }

@@ -7,7 +7,7 @@
 import Foundation
 
 /// Отвечает за загрузку данных по URL
-struct NetworkClient {
+struct NetworkClient: NetworkRouting {
     private enum NetworkError: LocalizedError {
         case codeError
         case sessionError
