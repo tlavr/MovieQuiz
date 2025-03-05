@@ -88,23 +88,7 @@ final class MovieQuizUITests: XCTestCase {
         XCTAssertFalse(alert.exists)
         XCTAssertTrue(indexLabel.label == "1/10")
     }
-    
-    func testScreenCast() throws {
-        let yesButton = app/*@START_MENU_TOKEN@*/.buttons["Yes"]/*[[".buttons[\"Да\"]",".buttons[\"Yes\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/
-        yesButton.tap()
-        let noButton = app.buttons["Нет"]
-        noButton.tap()
-        yesButton.tap()
-        noButton.tap()
-        yesButton.tap()
-        yesButton.tap()
-        yesButton.tap()
-        yesButton.tap()
-        yesButton.tap()
-        yesButton.tap()
-        app.alerts["Этот раунд окончен!"].scrollViews.otherElements.buttons["Сыграть еще раз"].tap()
-    }
-    
+        
     @MainActor
     func testExample() throws {
         // UI tests must launch the application that they test.

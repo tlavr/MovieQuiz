@@ -11,13 +11,12 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Private Properties
-    private let questionsAmount: Int = 10
     private var correctAnswers: Int = .zero
-    private var currentQuestionIndex: Int = .zero
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter?
     private var questionFactory: QuestionFactoryProtocol?
     private var statisticService: StatisticServiceProtocol?
+    private let presenter = MovieQuizPresenter()
     
     // MARK: - View Lifecycles
     override func viewDidLoad() {
@@ -33,7 +32,7 @@ final class MovieQuizViewController: UIViewController {
         self.questionFactory?.loadData()
         
         statisticService = StatisticService()
-        statisticService?.setQuestionsAmount(to: questionsAmount)
+        statisticService?.setQuestionsAmount(to: presenter.questionsAmount)
     }
     
     // MARK: - IB Actions
@@ -53,13 +52,6 @@ final class MovieQuizViewController: UIViewController {
     }
     
     // MARK: - Private Methods
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let questionStep = QuizStepViewModel(
-            image: UIImage(data: model.imageData) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-        return questionStep
-    }
     
     // Shows current question on the user's screen
     private func show(quiz step: QuizStepViewModel) {
@@ -73,7 +65,7 @@ final class MovieQuizViewController: UIViewController {
         guard let currentQuestion = currentQuestion else {
             return
         }
-        let viewModel = convert(model: currentQuestion)
+        let viewModel = presenter.convert(model: currentQuestion)
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
@@ -101,7 +93,7 @@ final class MovieQuizViewController: UIViewController {
         ) { [weak self] in
             guard let self else { return }
             // Reset the game
-            self.currentQuestionIndex = .zero
+            self.presenter.resetQuestionIndex()
             self.correctAnswers = .zero
             self.questionFactory?.requestNextQuestion()
         }
@@ -111,17 +103,17 @@ final class MovieQuizViewController: UIViewController {
     private func showNextQuestionOrResults() {
         changeButtonsState(isEnabled: true)
         imageView.layer.borderColor = UIColor.clear.cgColor
-        if currentQuestionIndex == questionsAmount - 1 {
+        if presenter.isLastQuestion() {
             // If the last question index is achieved then results are shown
             guard let statisticService = statisticService else {return}
             let roundResult = GameResult(
                 correct: correctAnswers,
-                total: questionsAmount,
+                total: presenter.questionsAmount,
                 date: Date().dateTimeString
             )
             statisticService.store(roundResult)
             let roundResultText = """
-            Ваш результат: \(correctAnswers)/\(questionsAmount)
+            Ваш результат: \(correctAnswers)/\(presenter.questionsAmount)
             Количество сыгранных квизов: \(statisticService.gamesCount)
             Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date))
             Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
@@ -133,7 +125,7 @@ final class MovieQuizViewController: UIViewController {
             )
             showRoundResult(with: quizResult)
         } else {
-            currentQuestionIndex += 1
+            presenter.switchToNextQuestion()
             showLoadingIndicator()
             questionFactory?.requestNextQuestion()
         }
@@ -161,7 +153,7 @@ final class MovieQuizViewController: UIViewController {
                                            buttonText: "Попробовать еще раз") { [weak self] in
             guard let self = self else { return }
             
-            self.currentQuestionIndex = .zero
+            presenter.resetQuestionIndex()
             self.correctAnswers = .zero
             self.questionFactory?.requestNextQuestion()
         }
