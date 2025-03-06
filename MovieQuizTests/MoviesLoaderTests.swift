@@ -5,8 +5,8 @@
 //  Created by Timur Lavrukhin on 28.2.2025.
 //
 
-import XCTest // не забывайте импортировать фреймворк для тестирования
-@testable import MovieQuiz // импортируем приложение для тестирования
+import XCTest
+@testable import MovieQuiz
 
 class MoviesLoaderTests: XCTestCase {
     func testSuccessLoading() throws {
@@ -57,7 +57,7 @@ class MoviesLoaderTests: XCTestCase {
 struct StubNetworkClient: NetworkRouting {
     
     enum TestError: Error { // тестовая ошибка
-    case test
+        case test
     }
     
     let emulateError: Bool // этот параметр нужен, чтобы заглушка эмулировала либо ошибку сети, либо успешный ответ
